@@ -1,13 +1,31 @@
 {
-   "compilerOptions": {
-      "target": "es2015",
-      "module": "commonjs",
-      "strict": true,
-      "esModuleInterop": true,
-      "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true,
-      "outDir": "dist",
-      "declaration": true,
-      "declarationDir": "dist"
-   }
+  "display": "Base",
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "dist/types",
+    "module": "ES2022",
+    "target": "ES2022",
+    "rootDir": "src",
+    "moduleResolution": "Node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useUnknownInCatchVariables": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "lib": ["ES2022"],
+    "types": ["node"]
+  },
+  "include": ["./src/**/*"],
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "verbose": true
+  }
 }
