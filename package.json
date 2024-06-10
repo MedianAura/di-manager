@@ -5,7 +5,7 @@
   "repository": "https://github.com/MedianAura/di-manager",
   "license": "MIT",
   "author": "MedianAura",
-  "type": "commonjs",
+  "type": "module",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
@@ -20,7 +20,7 @@
     "./dist"
   ],
   "scripts": {
-    "build": "run-s -ln build:clean build:barrel build:esm build:tsc",
+    "build": "run-s -ln build:clean build:barrel build:tsc",
     "build:clean": "shx rm -rf dist",
     "build:barrel": "barrelsby -Hq --delete --location top --directory ./src",
     "build:tsc": "rollup -c --environment BUILD:production",
