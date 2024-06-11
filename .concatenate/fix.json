@@ -2,12 +2,12 @@
   "type": "series",
   "actions": [
     {
-      "label": "Fixing with ESLint",
-      "command": "eslint . --fix --format pretty --ext .js,.jsx,.cjs,.mjs,.ts,.cts,.mts,.tsx,.cts,.mts,.vue"
-    },
-    {
       "label": "Fixing with Prettier",
       "command": "prettier --write --list-different --cache ."
+    },
+    {
+      "label": "Fixing with ESLint",
+      "command": "eslint . --fix --format pretty --ext .js,.jsx,.cjs,.mjs,.ts,.cts,.mts,.tsx,.cts,.mts,.vue"
     }
   ]
 }

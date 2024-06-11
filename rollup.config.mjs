@@ -1,12 +1,18 @@
-import {createRequire} from 'node:module';
+import { createRequire } from 'node:module';
+import clear from 'rollup-plugin-clear';
+import execute from 'rollup-plugin-shell';
+import ts from 'rollup-plugin-ts';
+import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import clear from 'rollup-plugin-clear';
-import ts from "rollup-plugin-ts";
 
 const require = createRequire(import.meta.url);
 const packageJSON = require('./package.json');
+let commands = [];
+
+if (process.env.BUILD === 'development') {
+  commands = [`delay 1 && yalc publish --push --changed`];
+}
 
 const plugins = [
   clear({
@@ -36,15 +42,15 @@ const plugins = [
           mangle: false,
         },
       },
-    }
+    },
   }),
   resolve(),
   commonjs(),
+  execute({ commands: commands, hook: 'closeBundle' }),
 ];
 
-const dependencies = ['tslib']
-dependencies.push(...Object.keys(packageJSON.peerDependencies).map((d) => d));
-dependencies.push(...Object.keys(packageJSON.devDependencies).map((d) => d));
+const dependencies = ['tslib'];
+dependencies.push(...Object.keys(packageJSON.peerDependencies).map((d) => d), ...Object.keys(packageJSON.devDependencies).map((d) => d));
 
 export default [
   {
@@ -57,13 +63,13 @@ export default [
         format: 'cjs',
         file: packageJSON.main,
         sourcemap: process.env.BUILD === 'development' ? 'inline' : false,
-        inlineDynamicImports: true
+        inlineDynamicImports: true,
       },
       {
         format: 'esm',
         file: packageJSON.module,
         sourcemap: process.env.BUILD === 'development' ? 'inline' : false,
-        inlineDynamicImports: true
+        inlineDynamicImports: true,
       },
     ],
     plugins: plugins,
