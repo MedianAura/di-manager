@@ -62,3 +62,26 @@
   - For test isolation, call clear() in beforeEach/afterEach hooks
 
 ---
+
+## 2026-01-13 1:10 PM - US-006
+- Implemented direct value resolution in get() method
+- get() now returns direct values (non-function, non-config-object) unchanged
+- Supports strings, numbers, objects, booleans, undefined, arrays
+- Returns exact same reference on repeated calls (no caching needed)
+- Added error handling for unregistered services with descriptive message
+- Files changed:
+  - src/core/create-container.ts (implemented get() logic for direct values)
+  - tests/unit/src/create-container.spec.ts (added 9 unit tests for US-006)
+- Quality checks passed:
+  - npm run check (Prettier, ESLint, TSC)
+  - npm run build (successful compilation)
+  - npm run test:unit (46 tests pass)
+- **Learnings for future iterations:**
+  - Direct values are returned immediately without caching (they're always the same reference)
+  - Type check for config object: `typeof service === 'object' && service !== null && 'factory' in service`
+  - Use @ts-expect-error comment when testing error cases with invalid tokens
+  - ESLint rules: no abbreviated variable names (obj→testObject, arr→numbersArray, dbConfig→databaseConfig)
+  - ESLint rules: prefer undefined over null (unicorn/no-null)
+  - Factory functions and config objects are deferred to US-007 and US-008
+
+---

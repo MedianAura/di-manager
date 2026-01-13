@@ -1,5 +1,5 @@
 import { createContainer } from './create-container';
-import type { Container } from './types';
+import type { Container, ContainerToken } from './types';
 
 /**
  * Global dependency injection container.
@@ -23,4 +23,4 @@ import type { Container } from './types';
  *   return container.get('port');
  * }
  */
-export const container: Container<Record<string | symbol, unknown>> = createContainer({});
+export const container: Container<Record<ContainerToken, unknown>> = createContainer({});

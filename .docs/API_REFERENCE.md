@@ -83,7 +83,7 @@ Retrieves a service by its token.
 
 ```typescript
 get<K extends keyof TServices>(token: K): TServices[K]
-get<T>(token: string | symbol): T  // Fallback overload
+get<T>(token: ContainerToken): T  // Fallback overload
 ```
 
 ### Parameters
@@ -179,12 +179,12 @@ Checks if a service is registered in the container.
 ### Signature
 
 ```typescript
-has(token: keyof TServices | string | symbol): boolean
+has(token: keyof TServices | ContainerToken): boolean
 ```
 
 ### Parameters
 
-- **token**: `keyof TServices | string | symbol`
+- **token**: `keyof TServices | ContainerToken`
   - Service token to check
 
 ### Returns

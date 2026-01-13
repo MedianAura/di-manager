@@ -245,3 +245,119 @@ describe('createContainer - US-005: Service Registry and Initialization', () => 
     });
   });
 });
+
+describe('createContainer - US-006: Direct Value Resolution', () => {
+  it('returns direct string values unchanged', () => {
+    const config = {
+      greeting: 'hello world',
+    };
+
+    const container = createContainer(config);
+    const result = container.get('greeting');
+
+    expect(result).toBe('hello world');
+  });
+
+  it('returns direct number values unchanged', () => {
+    const config = {
+      port: 3000,
+      timeout: 5000,
+    };
+
+    const container = createContainer(config);
+
+    expect(container.get('port')).toBe(3000);
+    expect(container.get('timeout')).toBe(5000);
+  });
+
+  it('returns direct object values unchanged', () => {
+    const databaseConfig = { host: 'localhost', port: 5432 };
+    const config = {
+      database: databaseConfig,
+    };
+
+    const container = createContainer(config);
+    const result = container.get('database');
+
+    expect(result).toEqual(databaseConfig);
+  });
+
+  it('returns exact same reference on repeated calls', () => {
+    const testObject = { id: 1, name: 'test' };
+    const config = {
+      config: testObject,
+    };
+
+    const container = createContainer(config);
+
+    const first = container.get('config');
+    const second = container.get('config');
+    const third = container.get('config');
+
+    // All calls return the exact same reference
+    expect(first).toBe(testObject);
+    expect(second).toBe(testObject);
+    expect(third).toBe(testObject);
+    expect(first).toBe(second);
+    expect(second).toBe(third);
+  });
+
+  it('works with boolean values', () => {
+    const config = {
+      isProduction: false,
+      debugMode: true,
+    };
+
+    const container = createContainer(config);
+
+    expect(container.get('isProduction')).toBe(false);
+    expect(container.get('debugMode')).toBe(true);
+  });
+
+  it('works with undefined values', () => {
+    const config = {
+      undefinedValue: undefined,
+    };
+
+    const container = createContainer(config);
+
+    expect(container.get('undefinedValue')).toBe(undefined);
+  });
+
+  it('works with array values', () => {
+    const numbersArray = [1, 2, 3];
+    const config = {
+      numbers: numbersArray,
+    };
+
+    const container = createContainer(config);
+    const result = container.get('numbers');
+
+    expect(result).toBe(numbersArray);
+    expect(result).toEqual([1, 2, 3]);
+  });
+
+  it('works with symbol keys', () => {
+    const symKey = Symbol('config');
+    const value = { setting: 'value' };
+    const config = {
+      [symKey]: value,
+    };
+
+    const container = createContainer(config);
+    const result = container.get(symKey);
+
+    expect(result).toBe(value);
+  });
+
+  it('throws error for unregistered service', () => {
+    const config = {
+      existingService: 'value',
+    };
+
+    const container = createContainer(config);
+
+    // @ts-expect-error Testing error case with invalid token
+    expect(() => container.get('nonExistent')).toThrow('Service "nonExistent" not registered');
+  });
+});

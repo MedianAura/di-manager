@@ -105,10 +105,10 @@ export interface Container<TServices extends Record<string, any>> {
 
 export function createContainer<const T extends Record<string, any>>(config: T): Container<InferServiceTypes<T>> {
   // Internal registry: token -> value/factory
-  const registry = new Map<string | symbol, any>();
+  const registry = new Map<ContainerToken, any>();
 
   // Singleton cache
-  const singletons = new Map<string | symbol, any>();
+  const singletons = new Map<ContainerToken, any>();
 
   // Register all services from config
   for (const [token, value] of Object.entries(config)) {

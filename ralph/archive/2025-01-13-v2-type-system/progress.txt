@@ -53,9 +53,9 @@
 
   ## [Jan 13 2026] - US-003: Create Container Interface with Fully Typed Methods
   - Container<TServices> interface already implemented in src/types.ts from US-001
-  - Generic TServices parameter with extends Record<string | symbol, unknown>
+  - Generic TServices parameter with extends Record<ContainerToken, unknown>
   - get<K extends keyof TServices>(token: K): TServices[K] with full autocomplete
-  - has(token: keyof TServices | string | symbol): boolean for service checks
+  - has(token: keyof TServices | ContainerToken): boolean for service checks
   - keys(): Array<keyof TServices> returning all registered tokens
   - clear(): void for clearing singleton caches
   - All methods documented with comprehensive JSDoc comments

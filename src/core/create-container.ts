@@ -1,4 +1,4 @@
-import type { Container, InferServiceTypes, ServiceConfig } from './types';
+import type { Container, ContainerToken, InferServiceTypes, ServiceConfig } from './types';
 
 /**
  * Creates a dependency injection container from a configuration object.
@@ -18,9 +18,9 @@ import type { Container, InferServiceTypes, ServiceConfig } from './types';
  * const db = container.get('db'); // Database instance (singleton)
  * const cache = container.get('cache'); // Cache instance (new each time)
  */
-export function createContainer<TConfig extends Record<string | symbol, ServiceConfig<unknown>>>(config: TConfig): Container<InferServiceTypes<TConfig>> {
+export function createContainer<TConfig extends Record<ContainerToken, ServiceConfig<unknown>>>(config: TConfig): Container<InferServiceTypes<TConfig>> {
   // Internal registry stores all services by token
-  const registry = new Map<string | symbol, ServiceConfig<unknown>>();
+  const registry = new Map<ContainerToken, ServiceConfig<unknown>>();
 
   // Populate registry from config object entries
   for (const [token, service] of Object.entries(config)) {
@@ -33,20 +33,38 @@ export function createContainer<TConfig extends Record<string | symbol, ServiceC
   }
 
   // Singleton cache for resolved instances
-  const singletonCache = new Map<string | symbol, unknown>();
+  const singletonCache = new Map<ContainerToken, unknown>();
 
   const container: Container<InferServiceTypes<TConfig>> = {
     get<K extends keyof InferServiceTypes<TConfig>>(token: K): InferServiceTypes<TConfig>[K] {
-      // Implementation will be added in subsequent user stories
-      throw new Error(`Service "${String(token)}" not implemented yet`);
+      // Check if service is registered
+      if (!registry.has(token as ContainerToken)) {
+        throw new Error(`Service "${String(token)}" not registered`);
+      }
+
+      const service = registry.get(token as ContainerToken);
+
+      // Direct value resolution: if not a function and not a config object, return as-is
+      if (typeof service !== 'function') {
+        // Check if it's a config object with factory property
+        if (typeof service === 'object' && service !== null && 'factory' in service) {
+          // This is a config object - will be handled in US-008
+          throw new Error(`Factory resolution not implemented yet for "${String(token)}"`);
+        }
+        // Direct value (string, number, object, boolean, null, undefined, array, etc.)
+        return service as InferServiceTypes<TConfig>[K];
+      }
+
+      // Factory functions will be handled in US-007
+      throw new Error(`Factory resolution not implemented yet for "${String(token)}"`);
     },
 
-    register<K extends string | symbol, T>(token: K, service: ServiceConfig<T>): void {
+    register<K extends ContainerToken, T>(token: K, service: ServiceConfig<T>): void {
       registry.set(token, service as ServiceConfig<unknown>);
     },
 
-    has(token: keyof InferServiceTypes<TConfig> | string | symbol): boolean {
-      return registry.has(token as string | symbol);
+    has(token: keyof InferServiceTypes<TConfig> | ContainerToken): boolean {
+      return registry.has(token as ContainerToken);
     },
 
     keys(): Array<keyof InferServiceTypes<TConfig>> {

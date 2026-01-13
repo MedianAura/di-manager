@@ -1,3 +1,5 @@
+export type ContainerToken = symbol | string;
+
 /**
  * Configuration for a service that can be registered in a DI container.
  * Supports three patterns:
@@ -33,7 +35,7 @@ export type InferServiceTypes<T> = {
  * A typed dependency injection container that manages service instances.
  * @template TServices - The type of services managed by this container
  */
-export interface Container<TServices extends Record<string | symbol, unknown>> {
+export interface Container<TServices extends Record<ContainerToken, unknown>> {
   /**
    * Retrieve a service instance by token.
    * @param token - The service token/key
@@ -47,14 +49,14 @@ export interface Container<TServices extends Record<string | symbol, unknown>> {
    * @param token - The service token/key
    * @param service - The service configuration (direct value, factory, or config object)
    */
-  register<K extends string | symbol, T>(token: K, service: ServiceConfig<T>): void;
+  register<K extends ContainerToken, T>(token: K, service: ServiceConfig<T>): void;
 
   /**
    * Check if a service is registered in the container.
    * @param token - The service token/key
    * @returns true if the service is registered, false otherwise
    */
-  has(token: keyof TServices | string | symbol): boolean;
+  has(token: keyof TServices | ContainerToken): boolean;
 
   /**
    * Get all registered service tokens.

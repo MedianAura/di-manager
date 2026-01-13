@@ -48,7 +48,7 @@ Implement the core TypeScript type system for a lightweight, type-safe dependenc
 
 - [ ] `Container<TServices>` interface defined with generic `TServices` parameter
 - [ ] `get<K extends keyof TServices>(token: K): TServices[K]` method with autocomplete
-- [ ] `has(token: keyof TServices | string | symbol): boolean` method
+- [ ] `has(token: keyof TServices | ContainerToken): boolean` method
 - [ ] `keys(): Array<keyof TServices>` method returning all tokens
 - [ ] `clear(): void` method for clearing singleton caches
 - [ ] All methods have proper JSDoc comments
