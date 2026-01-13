@@ -9,5 +9,56 @@
 - Type-level tests use `undefined as unknown as Type` pattern for type verification
 - Unused variables must start with _ prefix to pass ESLint
 - Runtime container implementation uses Map-based registry for O(1) lookups
+- Arrow functions used in test setup must be declared in outer scope per ESLint rules
+
+---
+
+## 2026-01-13 11:50 AM - US-005
+- Implemented `createContainer()` function with Map-based registry
+- Created service registry that accepts both string and symbol keys
+- Registry populated from config object entries using Object.entries() and Object.getOwnPropertySymbols()
+- Implemented Container interface methods: get(), has(), keys(), clear()
+- Services stored as-is without transformation at registration
+- Added singleton cache Map for future use (US-007)
+- Files changed:
+  - src/create-container.ts (new file)
+  - src/index.ts (added export)
+  - tests/unit/src/create-container.spec.ts (new file with 10 unit tests)
+- Quality checks passed:
+  - npm run check (Prettier, ESLint, TSC)
+  - npm run build (successful compilation)
+  - npm run test:unit (21 tests pass)
+- **Learnings for future iterations:**
+  - The ctix barrel builder (build:barrel) regenerates src/index.ts without .js extensions (fileExt: "none" in .ctirc)
+  - Test scripts use `test:unit` not `test`
+  - Arrow functions in test files must be declared in outer scope to satisfy ESLint unicorn/consistent-function-scoping rule
+  - The get() method is intentionally stubbed with error - will be implemented in US-006/US-007
+
+---
+
+## 2026-01-13 12:30 PM - US-005 Enhancement: Global Container
+- Added `register()` method to Container interface to support dynamic service registration
+- Created global container instance exported as `container`
+- Global container enables libraries to access shared configuration without passing container instances
+- Files changed:
+  - src/types.ts (added register() method to Container interface)
+  - src/create-container.ts (implemented register() method)
+  - src/global-container.ts (new file - exports global container instance)
+  - src/index.ts (added export for global-container)
+  - tests/unit/src/create-container.spec.ts (added 8 tests for register() method)
+  - tests/unit/src/global-container.spec.ts (new file with 8 tests)
+- Use cases supported:
+  - Application registers configuration in global container
+  - Libraries import and access global container without injection
+  - Both scoped (createContainer) and global (container) patterns supported
+- Quality checks passed:
+  - npm run check (Prettier, ESLint, TSC)
+  - npm run build (successful compilation)
+  - npm run test:unit (37 tests pass)
+- **Learnings for future iterations:**
+  - Global container created with empty config: `createContainer({})`
+  - register() method adds services to existing container registry dynamically
+  - clear() only clears singleton cache, not registry (services remain registered)
+  - For test isolation, call clear() in beforeEach/afterEach hooks
 
 ---

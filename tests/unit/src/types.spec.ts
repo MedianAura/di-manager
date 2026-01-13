@@ -1,5 +1,5 @@
 import { describe, it } from 'vitest';
-import type { Container, InferServiceTypes, ServiceConfig } from '@src/types.js';
+import type { Container, InferServiceTypes, ServiceConfig } from '@src/core/types';
 
 describe('Type System Tests', () => {
   describe('ServiceConfig type', () => {

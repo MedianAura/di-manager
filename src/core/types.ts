@@ -43,6 +43,13 @@ export interface Container<TServices extends Record<string | symbol, unknown>> {
   get<K extends keyof TServices>(token: K): TServices[K];
 
   /**
+   * Register a service in the container.
+   * @param token - The service token/key
+   * @param service - The service configuration (direct value, factory, or config object)
+   */
+  register<K extends string | symbol, T>(token: K, service: ServiceConfig<T>): void;
+
+  /**
    * Check if a service is registered in the container.
    * @param token - The service token/key
    * @returns true if the service is registered, false otherwise
