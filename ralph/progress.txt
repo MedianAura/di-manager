@@ -85,3 +85,26 @@
   - Factory functions and config objects are deferred to US-007 and US-008
 
 ---
+
+## 2026-01-13 2:47 PM - US-007
+- Implemented factory function detection in get() method
+- First call to factory function executes and caches the result
+- Subsequent calls return the cached singleton instance (same reference)
+- Singleton cache is separate from registry (clear() only affects cache)
+- Factory resolution works for simple arrow functions: `service: () => new Service()`
+- Files changed:
+  - src/core/create-container.ts (implemented factory resolution logic in get() method)
+  - tests/unit/src/create-container.spec.ts (added 8 unit tests for US-007)
+- Quality checks passed:
+  - npm run check (Prettier, ESLint, TSC)
+  - npm run build (successful compilation)
+  - npm run test:unit (54 tests pass)
+- **Learnings for future iterations:**
+  - Factory functions are detected with `typeof service === 'function'`
+  - Singleton cache uses Map.has() to check if already resolved
+  - Factory is invoked and result is cached: `const instance = factory(); singletonCache.set(token, instance);`
+  - Identity checks (`expect(first).toBe(second)`) verify singleton behavior
+  - Factory functions in tests must be declared in outer scope (ESLint unicorn/consistent-function-scoping)
+  - Config objects with explicit singleton flag will be handled in US-008
+
+---

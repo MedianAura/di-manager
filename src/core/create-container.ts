@@ -55,8 +55,19 @@ export function createContainer<TConfig extends Record<ContainerToken, ServiceCo
         return service as InferServiceTypes<TConfig>[K];
       }
 
-      // Factory functions will be handled in US-007
-      throw new Error(`Factory resolution not implemented yet for "${String(token)}"`);
+      // Factory function resolution: check if result is already cached
+      if (singletonCache.has(token as ContainerToken)) {
+        return singletonCache.get(token as ContainerToken) as InferServiceTypes<TConfig>[K];
+      }
+
+      // Execute factory function
+      const factory = service as () => unknown;
+      const instance = factory();
+
+      // Cache the result for singleton behavior
+      singletonCache.set(token as ContainerToken, instance);
+
+      return instance as InferServiceTypes<TConfig>[K];
     },
 
     register<K extends ContainerToken, T>(token: K, service: ServiceConfig<T>): void {

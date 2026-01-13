@@ -361,3 +361,168 @@ describe('createContainer - US-006: Direct Value Resolution', () => {
     expect(() => container.get('nonExistent')).toThrow('Service "nonExistent" not registered');
   });
 });
+
+// Factory functions for US-007 testing (outer scope)
+const factoryForDetection = () => ({ id: 1, name: 'test' });
+const factoryForSingleton = () => ({ id: Math.random() });
+const factory1 = () => ({ name: 'service1' });
+const factory2 = () => ({ name: 'service2' });
+const factory3 = () => ({ name: 'service3' });
+const factoryForSymbol = () => ({ id: 42 });
+
+describe('createContainer - US-007: Factory Function Resolution with Singleton Caching', () => {
+  it('detects if value is a function', () => {
+    const config = {
+      service: factoryForDetection,
+    };
+
+    const container = createContainer(config);
+    const result = container.get('service');
+
+    // Should execute the factory, not return the function itself
+    expect(result).toEqual({ id: 1, name: 'test' });
+    expect(typeof result).toBe('object');
+  });
+
+  it('executes factory function on first call', () => {
+    let callCount = 0;
+    const factory = () => {
+      callCount++;
+      return { count: callCount };
+    };
+
+    const config = {
+      service: factory,
+    };
+
+    const container = createContainer(config);
+    const result = container.get('service');
+
+    expect(callCount).toBe(1);
+    expect(result).toEqual({ count: 1 });
+  });
+
+  it('returns cached instance on subsequent calls (singleton behavior)', () => {
+    let callCount = 0;
+    const factory = () => {
+      callCount++;
+      return { count: callCount };
+    };
+
+    const config = {
+      service: factory,
+    };
+
+    const container = createContainer(config);
+
+    const first = container.get('service');
+    const second = container.get('service');
+    const third = container.get('service');
+
+    // Factory should only be called once
+    expect(callCount).toBe(1);
+
+    // All calls should return the same cached instance
+    expect(first).toBe(second);
+    expect(second).toBe(third);
+    expect(first).toEqual({ count: 1 });
+  });
+
+  it('returns exact same reference for cached singletons', () => {
+    const config = {
+      service: factoryForSingleton,
+    };
+
+    const container = createContainer(config);
+
+    const first = container.get('service');
+    const second = container.get('service');
+
+    // Should be the exact same instance (identity check)
+    expect(first).toBe(second);
+    expect(first.id).toBe(second.id);
+  });
+
+  it('works for factories without explicit config', () => {
+    class Service {
+      constructor(public name: string) {}
+    }
+
+    const config = {
+      service: () => new Service('test'),
+    };
+
+    const container = createContainer(config);
+    const result = container.get('service');
+
+    expect(result).toBeInstanceOf(Service);
+    expect(result.name).toBe('test');
+  });
+
+  it('works with multiple factory services', () => {
+    const config = {
+      service1: factory1,
+      service2: factory2,
+      service3: factory3,
+    };
+
+    const container = createContainer(config);
+
+    const result1 = container.get('service1');
+    const result2 = container.get('service2');
+    const result3 = container.get('service3');
+
+    expect(result1).toEqual({ name: 'service1' });
+    expect(result2).toEqual({ name: 'service2' });
+    expect(result3).toEqual({ name: 'service3' });
+
+    // Each service has its own cache
+    expect(container.get('service1')).toBe(result1);
+    expect(container.get('service2')).toBe(result2);
+    expect(container.get('service3')).toBe(result3);
+  });
+
+  it('singleton cache is separate from registry', () => {
+    let callCount = 0;
+    const factory = () => {
+      callCount++;
+      return { count: callCount };
+    };
+
+    const config = {
+      service: factory,
+    };
+
+    const container = createContainer(config);
+
+    // First call executes factory
+    container.get('service');
+    expect(callCount).toBe(1);
+
+    // Clear cache
+    container.clear();
+
+    // Next call re-executes factory (new instance)
+    container.get('service');
+    expect(callCount).toBe(2);
+
+    // But service is still registered
+    expect(container.has('service')).toBe(true);
+  });
+
+  it('works with symbol keys', () => {
+    const symKey = Symbol('service');
+
+    const config = {
+      [symKey]: factoryForSymbol,
+    };
+
+    const container = createContainer(config);
+
+    const first = container.get(symKey);
+    const second = container.get(symKey);
+
+    expect(first).toEqual({ id: 42 });
+    expect(first).toBe(second);
+  });
+});
