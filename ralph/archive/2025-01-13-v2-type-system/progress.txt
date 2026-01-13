@@ -1,0 +1,89 @@
+# DI Manager v2.0 Type System - Progress Log
+
+## Codebase Patterns
+- TypeScript 5.0+ with strict type checking
+- ESM imports require explicit .js extensions (moduleResolution: nodenext)
+- Prettier formatting: multiline unions broken across lines with leading |
+- All types exported from src/types.ts, re-exported via src/index.ts
+- Pre-existing issue: tsyringe missing from package.json (unresolved in inject-dependency.ts)
+- Type tests: use `as unknown as Type` instead of `null as any as Type`
+- Unused variables must start with _ prefix to pass ESLint
+
+---
+
+## [Jan 13 2026] - US-001: Create ServiceConfig Type Union
+- Created src/types.ts with ServiceConfig<T> union type
+  - Accepts direct values: T
+  - Accepts factories: () => T
+  - Accepts config objects: { factory: () => T, singleton?: boolean }
+- Also added InferServiceTypes<T> helper (needed for later stories)
+- Also added Container<TServices> interface (needed for US-003)
+- Updated src/index.ts to export types
+- Fixed ESM import extensions (decorators/inject-dependency.js, types.js)
+- Quality: npm run check passes (Prettier + ESLint), npm run build succeeds
+- **Learnings:**
+  - Format multiline unions with leading | for Prettier compliance
+  - ESM imports must include .js extensions with nodenext resolution
+  - Container interface design follows RFC pattern with JSDoc on all methods
+
+---
+
+## [Jan 13 2026] - US-002: Implement InferServiceTypes Type Helper
+- Created tests/types.test.ts with comprehensive type-level test suite
+  - 5+ test cases covering all patterns: direct values, factories, config objects
+  - Tests for symbol key support
+  - Tests for autocomplete with satisfies operator
+  - Tests for Container interface methods (get, has, keys, clear)
+- InferServiceTypes was already implemented in US-001, verified it works with all patterns
+- Tests verify:
+  - Extract types from direct value configs
+  - Extract types from factory function configs
+  - Extract types from config object { factory, singleton } patterns
+  - Works with symbol keys in addition to string keys
+  - Container.get() returns correct inferred type
+  - Autocomplete works with service tokens
+- Quality: npm run check (TSC + ESLint) passes, npm run build succeeds
+- **Learnings:**
+  - Type tests use `as unknown as Type` instead of `null as any as Type` (prefer undefined)
+  - ESLint rule `unicorn/consistent-function-scoping` prevents inline arrow functions in tests; use eslint-disable-next-line
+  - Unused variables must start with _ to pass linting
+  - Test file must import types before vitest describe
+
+  ---
+
+  ## [Jan 13 2026] - US-003: Create Container Interface with Fully Typed Methods
+  - Container<TServices> interface already implemented in src/types.ts from US-001
+  - Generic TServices parameter with extends Record<string | symbol, unknown>
+  - get<K extends keyof TServices>(token: K): TServices[K] with full autocomplete
+  - has(token: keyof TServices | string | symbol): boolean for service checks
+  - keys(): Array<keyof TServices> returning all registered tokens
+  - clear(): void for clearing singleton caches
+  - All methods documented with comprehensive JSDoc comments
+  - Fixed Prettier formatting in auto-imports.d.ts
+  - Quality: npm run check passes (TSC + ESLint + Prettier), npm run build succeeds
+  - **Learnings:**
+  - Container interface was already implemented as a dependency of earlier stories
+  - All acceptance criteria met; no additional implementation needed
+  - Build system: ctix barrel generation has warning but tsup succeeds
+
+  ---
+
+  ## [Jan 13 2026] - US-004: Create Type-Level Test Suite
+  - Type-level tests already exist at tests/unit/src/types.spec.ts
+  - 11 test cases covering all acceptance criteria
+  - Test ServiceConfig accepts direct values, factory functions, and config objects
+  - Test InferServiceTypes correctly extracts types from config
+  - Test Container.get/has/keys/clear methods with correct type inference
+  - Test autocomplete works for service tokens using satisfies operator
+  - Test symbol key support
+  - Fixed type test implementation to use pure type-level tests (no runtime execution)
+  - Changed from accessing undefined values at runtime to type annotation checks
+  - Use `undefined as unknown as Type` pattern for type verification
+  - All tests pass without TypeScript errors
+  - Quality: npm run test:unit:coverage (11 tests pass), npm run check (TSC + ESLint + Prettier), npm run build succeeds
+  - **Learnings:**
+  - Type-level tests should verify compilation, not runtime behavior
+  - Use undefined instead of null for type coercion patterns
+  - Unused type variables properly scoped with void statements
+
+  ---
