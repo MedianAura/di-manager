@@ -6,6 +6,8 @@
 - Prettier formatting: multiline unions broken across lines with leading |
 - All types exported from src/types.ts, re-exported via src/index.ts
 - Pre-existing issue: tsyringe missing from package.json (unresolved in inject-dependency.ts)
+- Type tests: use `as unknown as Type` instead of `null as any as Type`
+- Unused variables must start with _ prefix to pass ESLint
 
 ---
 
@@ -23,5 +25,28 @@
   - Format multiline unions with leading | for Prettier compliance
   - ESM imports must include .js extensions with nodenext resolution
   - Container interface design follows RFC pattern with JSDoc on all methods
+
+---
+
+## [Jan 13 2026] - US-002: Implement InferServiceTypes Type Helper
+- Created tests/types.test.ts with comprehensive type-level test suite
+  - 5+ test cases covering all patterns: direct values, factories, config objects
+  - Tests for symbol key support
+  - Tests for autocomplete with satisfies operator
+  - Tests for Container interface methods (get, has, keys, clear)
+- InferServiceTypes was already implemented in US-001, verified it works with all patterns
+- Tests verify:
+  - Extract types from direct value configs
+  - Extract types from factory function configs
+  - Extract types from config object { factory, singleton } patterns
+  - Works with symbol keys in addition to string keys
+  - Container.get() returns correct inferred type
+  - Autocomplete works with service tokens
+- Quality: npm run check (TSC + ESLint) passes, npm run build succeeds
+- **Learnings:**
+  - Type tests use `as unknown as Type` instead of `null as any as Type` (prefer undefined)
+  - ESLint rule `unicorn/consistent-function-scoping` prevents inline arrow functions in tests; use eslint-disable-next-line
+  - Unused variables must start with _ to pass linting
+  - Test file must import types before vitest describe
 
 ---
