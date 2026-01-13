@@ -11,9 +11,8 @@ export default defineConfig({
   test: {
     include: ['./tests/unit/**/*.spec.ts'],
     // setupFiles: './tests/unit/vitest.setup.ts',
-    environment: 'happy-dom',
     globals: true,
-    cache: false,
+    cache: true,
     coverage: {
       provider: 'v8',
       include: ['src/**/*.*'],

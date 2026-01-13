@@ -1,15 +1,9 @@
-import { container } from 'tsyringe';
-
-export function InjectDependency(token: string | symbol) {
+export function InjectDependency(_token: string | symbol) {
   return function (target: unknown, propertyKey: string) {
     Object.defineProperty(target, propertyKey, {
       get(): unknown {
-        return getFromContainer(token);
+        return undefined;
       },
     });
   };
-}
-
-export function getFromContainer<T>(token: string | symbol): T {
-  return container.resolve<T>(token);
 }

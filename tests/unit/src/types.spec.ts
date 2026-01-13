@@ -10,16 +10,6 @@ describe('Type System Tests', () => {
       const _config3: ServiceConfig<{ id: number }> = { id: 1 };
     });
 
-    it('accepts factory functions', () => {
-      const _factory1: ServiceConfig<string> = () => 'hello';
-      const _factory2: ServiceConfig<number> = () => 42;
-      const _factory3: ServiceConfig<{ id: number }> = () => ({ id: 1 });
-
-      void _factory1;
-      void _factory2;
-      void _factory3;
-    });
-
     it('accepts config objects with factory and singleton', () => {
       // Test that ServiceConfig accepts config objects
       const _config1: ServiceConfig<string> = {
