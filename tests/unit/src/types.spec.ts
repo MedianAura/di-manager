@@ -1,5 +1,5 @@
-import type { Container, InferServiceTypes, ServiceConfig } from '@src/types.js';
 import { describe, it } from 'vitest';
+import type { Container, InferServiceTypes, ServiceConfig } from '@src/types.js';
 
 describe('Type System Tests', () => {
   describe('ServiceConfig type', () => {
@@ -11,11 +11,8 @@ describe('Type System Tests', () => {
     });
 
     it('accepts factory functions', () => {
-      // eslint-disable-next-line unicorn/consistent-function-scoping
       const _factory1: ServiceConfig<string> = () => 'hello';
-      // eslint-disable-next-line unicorn/consistent-function-scoping
       const _factory2: ServiceConfig<number> = () => 42;
-      // eslint-disable-next-line unicorn/consistent-function-scoping
       const _factory3: ServiceConfig<{ id: number }> = () => ({ id: 1 });
 
       void _factory1;
@@ -87,17 +84,17 @@ describe('Type System Tests', () => {
 
       // Verify type extraction for factories
       const _services = undefined as unknown as Services;
-      const _db: DatabaseService = _services.db;
+      const _database: DatabaseService = _services.db;
       const _cache: CacheService = _services.cache;
 
-      void _db;
+      void _database;
       void _cache;
     });
 
     it('extracts types from config objects with factory', () => {
       class Logger {
-        log(msg: string): void {
-          void msg;
+        log(message: string): void {
+          void message;
         }
       }
 
@@ -117,7 +114,7 @@ describe('Type System Tests', () => {
     });
 
     it('works with symbol keys', () => {
-      const dbSymbol = Symbol('db');
+      const databaseSymbol = Symbol('db');
       const cacheSymbol = Symbol('cache');
 
       class Database {
@@ -127,17 +124,17 @@ describe('Type System Tests', () => {
       }
 
       const _config = {
-        [dbSymbol]: () => new Database(),
+        [databaseSymbol]: () => new Database(),
         [cacheSymbol]: { factory: () => new Map<string, unknown>() },
       } as const;
 
       type Services = InferServiceTypes<typeof _config>;
 
       // Verify symbol key extraction
-      const _db: Database = undefined as unknown as Services[typeof dbSymbol];
+      const _database: Database = undefined as unknown as Services[typeof databaseSymbol];
       const _cache: Map<string, unknown> = undefined as unknown as Services[typeof cacheSymbol];
 
-      void _db;
+      void _database;
       void _cache;
     });
 
@@ -162,17 +159,11 @@ describe('Type System Tests', () => {
       type Services = InferServiceTypes<typeof _config>;
 
       // Verify tokens can be used with autocomplete
-      const _tokens = ['users', 'posts'] as const satisfies ReadonlyArray<
-        keyof Services
-      >;
+      const _tokens = ['users', 'posts'] as const satisfies ReadonlyArray<keyof Services>;
 
       // Ensure type safety on token access
-      const _userService: UserService = undefined as unknown as Services[
-        (typeof _tokens)[0]
-      ];
-      const _postService: PostService = undefined as unknown as Services[
-        (typeof _tokens)[1]
-      ];
+      const _userService: UserService = undefined as unknown as Services[(typeof _tokens)[0]];
+      const _postService: PostService = undefined as unknown as Services[(typeof _tokens)[1]];
 
       void _userService;
       void _postService;
