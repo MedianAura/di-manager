@@ -863,3 +863,182 @@ describe('createContainer - US-010: Container.keys() Method', () => {
     expect(collectedKeys.length).toBe(3);
   });
 });
+
+describe('createContainer - US-011: Container.clear() Method', () => {
+  it('removes all cached singletons', () => {
+    const config = {
+      singletonService: configFactory,
+    };
+
+    const container = createContainer(config);
+
+    // First call: factory executes and result is cached
+    const first = container.get('singletonService');
+    expect(first).toBe('config result');
+
+    // Second call: should return cached instance
+    const second = container.get('singletonService');
+    expect(second).toBe(first);
+
+    // Clear the cache
+    container.clear();
+
+    // Third call: factory should execute again (new instance)
+    const third = container.get('singletonService');
+    expect(third).toBe('config result');
+  });
+
+  it('next call to get(token) creates new instance for cached factories', () => {
+    const config = {
+      factory: () => ({ id: Math.random() }),
+    };
+
+    const container = createContainer(config);
+
+    // First call: factory executes and caches result
+    const first = container.get('factory');
+    const firstId = first.id;
+
+    // Second call: should return cached (same reference)
+    const second = container.get('factory');
+    expect(second).toBe(first);
+    expect(second.id).toBe(firstId);
+
+    // Clear the cache
+    container.clear();
+
+    // Third call: factory executes again (new instance)
+    const third = container.get('factory');
+    const thirdId = third.id;
+    expect(third).not.toBe(first);
+    expect(thirdId).not.toBe(firstId);
+  });
+
+  it('direct values are unaffected', () => {
+    const directValue = { id: 1, name: 'original' };
+    const config = {
+      directValue,
+    };
+
+    const container = createContainer(config);
+
+    const first = container.get('directValue');
+    expect(first).toBe(directValue);
+
+    container.clear();
+
+    const second = container.get('directValue');
+    expect(second).toBe(directValue);
+    expect(second).toBe(first);
+  });
+
+  it('transient services already create new instances', () => {
+    const config = {
+      transientService: {
+        factory: () => ({ id: Math.random() }),
+        singleton: false,
+      },
+    };
+
+    const container = createContainer(config);
+
+    const first = container.get('transientService');
+    const second = container.get('transientService');
+
+    // Transient services create new instances each time
+    expect(first).not.toBe(second);
+
+    container.clear();
+
+    const third = container.get('transientService');
+    expect(third).not.toBe(first);
+    expect(third).not.toBe(second);
+  });
+
+  it('safe to call multiple times', () => {
+    const config = {
+      singleton: () => ({ id: Math.random() }),
+    };
+
+    const container = createContainer(config);
+
+    const first = container.get('singleton');
+
+    container.clear();
+    container.clear();
+    container.clear();
+
+    const second = container.get('singleton');
+    expect(second).not.toBe(first);
+  });
+
+  it('factory is re-invoked after clear', () => {
+    let invocationCount = 0;
+
+    const trackedFactory = () => {
+      invocationCount += 1;
+      return { invocation: invocationCount };
+    };
+
+    const config = {
+      tracked: trackedFactory,
+    };
+
+    const container = createContainer(config);
+
+    // First invocation
+    const first = container.get('tracked');
+    expect(first.invocation).toBe(1);
+    expect(invocationCount).toBe(1);
+
+    // Second call: should not re-invoke (cached)
+    const second = container.get('tracked');
+    expect(second).toBe(first);
+    expect(invocationCount).toBe(1);
+
+    // Clear and call again
+    container.clear();
+    const third = container.get('tracked');
+    expect(third).not.toBe(first);
+    expect(third.invocation).toBe(2);
+    expect(invocationCount).toBe(2);
+  });
+
+  it('works with both string and symbol tokens', () => {
+    const symToken = Symbol('cached');
+
+    const config = {
+      stringToken: () => ({ id: Math.random() }),
+      [symToken]: () => ({ id: Math.random() }),
+    };
+
+    const container = createContainer(config);
+
+    const stringFirst = container.get('stringToken');
+    const symFirst = container.get(symToken);
+
+    container.clear();
+
+    const stringSecond = container.get('stringToken');
+    const symSecond = container.get(symToken);
+
+    expect(stringSecond).not.toBe(stringFirst);
+    expect(symSecond).not.toBe(symFirst);
+  });
+
+  it('only clears singleton cache, not registry', () => {
+    const config = {
+      registered: 'value',
+    };
+
+    const container = createContainer(config);
+
+    expect(container.has('registered')).toBe(true);
+
+    container.clear();
+
+    // Service should still be registered
+    expect(container.has('registered')).toBe(true);
+    expect(container.get('registered')).toBe('value');
+  });
+});

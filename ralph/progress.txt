@@ -178,4 +178,31 @@
   - Use descriptive service names in tests to document behavior clearly
   - keys() is safe to call multiple times without side effects
 
----
+  ---
+
+  ## 2026-01-13 5:30 PM - US-011
+  - The clear() method was already implemented in create-container.ts (line 38)
+  - Added comprehensive test suite for clear() method with 8 unit tests
+  - Tests verify all acceptance criteria:
+  - clear() removes all cached singletons from the singletonCache Map
+  - Next call to get(token) creates new instance for cached factories (identity checks)
+  - Direct values are unaffected by clear() (same reference returned)
+  - Transient services already create new instances (unaffected by clear)
+  - Safe to call multiple times (idempotent)
+  - Factory is re-invoked after clear (invocation count tracking)
+  - Works with both string and symbol tokens
+  - Only clears singleton cache, not registry (services remain registered after clear)
+  - Files changed:
+  - tests/unit/src/create-container.spec.ts (added 8 tests for US-011)
+  - Quality checks passed:
+  - npm run check (Prettier, ESLint, TSC)
+  - npm run build (successful compilation)
+  - npm run test:unit (80 tests pass, 8 new tests for US-011)
+  - **Learnings for future iterations:**
+  - clear() uses singletonCache.clear() which empties the Map
+  - Factories that return primitives (strings) may not show differences in identity checks (use objects)
+  - Acceptance criteria about "transient services" means they're already working correctly
+  - clear() does not affect the registry Map, so has() still returns true for all services
+  - Test isolation pattern: clear() in beforeEach/afterEach blocks for test cleanup
+
+  ---
