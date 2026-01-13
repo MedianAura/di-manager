@@ -26,18 +26,20 @@
     "build:tsup": "tsup",
     "check": "concatenate check",
     "check:knip": "knip",
+    "commit": "komity",
     "fix": "concatenate fix",
     "release": "automaton version",
     "start": "node bin/run.js",
     "test:coverage": "open-cli coverage/lcov-report/index.html",
     "test:unit": "vitest --coverage.enabled --coverage.all --coverage.reporter=lcov",
-    "test:unit:coverage": "vitest --reporter basic --reporter junit --outputFile.junit=junit.xml --coverage.enabled --coverage.reporter=text-summary --coverage.reporter=cobertura --coverage.reporter=lcov --watch=false",
+    "test:unit:coverage": "vitest --reporter=default --coverage.enabled --coverage.reporter=text-summary --coverage.reporter=lcov --watch=false",
     "watch": "tsup --watch"
   },
   "devDependencies": {
     "@medianaura/automaton": "^0.2.0",
     "@medianaura/concatenate": "^0.3.2",
     "@medianaura/eslint-config": "^0.1.1",
+    "@medianaura/komity": "^0.2.0",
     "@types/node": "^25.0.7",
     "alias-kitchen": "^0.2.4",
     "ctix": "^2.7.2",
@@ -48,13 +50,9 @@
     "prettier": "^3.7.4",
     "shx": "^0.4.0",
     "tsup": "^8.5.1",
-    "tsyringe": "^4.10.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.53.0",
     "unplugin-auto-import": "^20.3.0",
     "vitest": "^4.0.17"
-  },
-  "peerDependencies": {
-    "tsyringe": ">=4.x"
   }
 }
