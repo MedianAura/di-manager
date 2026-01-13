@@ -1,0 +1,74 @@
+{
+  "project": "DI Manager v2.0",
+  "branchName": "ralph/v2-type-system",
+  "description": "Implement the core TypeScript type system for a lightweight, type-safe dependency injection container with full autocomplete and automatic type inference",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Create ServiceConfig Type Union",
+      "description": "As a developer, I need a type definition that accepts direct values, factory functions, or explicit configuration objects so I can configure services with different lifecycle patterns.",
+      "acceptanceCriteria": [
+        "ServiceConfig<T> type accepts direct values: T",
+        "ServiceConfig<T> type accepts factory functions: () => T",
+        "ServiceConfig<T> type accepts config objects: { factory: () => T, singleton?: boolean }",
+        "Type is generic and works for any service type",
+        "Type definitions are exported from src/types.ts",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Implement InferServiceTypes Type Helper",
+      "description": "As a developer, I need a type utility that extracts service types from a configuration object so that the container knows the types of all registered services.",
+      "acceptanceCriteria": [
+        "InferServiceTypes<T> extracts types from config object keys",
+        "Works with as const assertion for literal type narrowing",
+        "Returns object with same keys but extracted value types",
+        "Type-level tests verify inference works correctly",
+        "Type helper supports string and symbol keys",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Create Container Interface with Fully Typed Methods",
+      "description": "As a developer, I need a typed Container interface that defines all methods with proper type safety so the API is predictable and auto-documented.",
+      "acceptanceCriteria": [
+        "Container<TServices> interface defined with generic TServices parameter",
+        "get<K extends keyof TServices>(token: K): TServices[K] method with autocomplete",
+        "has(token: keyof TServices | string | symbol): boolean method",
+        "keys(): Array<keyof TServices> method returning all tokens",
+        "clear(): void method for clearing singleton caches",
+        "All methods have proper JSDoc comments",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Create Type-Level Test Suite",
+      "description": "As a developer, I need type-level tests that verify type inference works correctly at compile time so we ensure the type system matches the runtime behavior.",
+      "acceptanceCriteria": [
+        "Create tests/types.test.ts file",
+        "Test InferServiceTypes correctly extracts types from config",
+        "Test Container.get() returns correct type based on token",
+        "Test autocomplete works for service tokens using satisfies operator",
+        "Test ServiceConfig accepts all three patterns (value, factory, config)",
+        "At least 5 type-level test cases cover all patterns",
+        "All tests pass without TypeScript errors",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+# DI Manager v2.0 Type System - Progress Log
+
+## Codebase Patterns
+- TypeScript 5.0+ with strict type checking
+- ESM imports require explicit .js extensions (moduleResolution: nodenext)
+- Prettier formatting: multiline unions broken across lines with leading |
+- All types exported from src/types.ts, re-exported via src/index.ts
+- Pre-existing issue: tsyringe missing from package.json (unresolved in inject-dependency.ts)
+
+---
+
+## [Jan 13 2026] - US-001: Create ServiceConfig Type Union
+- Created src/types.ts with ServiceConfig<T> union type
+  - Accepts direct values: T
+  - Accepts factories: () => T
+  - Accepts config objects: { factory: () => T, singleton?: boolean }
+- Also added InferServiceTypes<T> helper (needed for later stories)
+- Also added Container<TServices> interface (needed for US-003)
+- Updated src/index.ts to export types
+- Fixed ESM import extensions (decorators/inject-dependency.js, types.js)
+- Quality: npm run check passes (Prettier + ESLint), npm run build succeeds
+- **Learnings:**
+  - Format multiline unions with leading | for Prettier compliance
+  - ESM imports must include .js extensions with nodenext resolution
+  - Container interface design follows RFC pattern with JSDoc on all methods
+
+---
