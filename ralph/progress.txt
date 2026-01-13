@@ -49,4 +49,21 @@
   - Unused variables must start with _ to pass linting
   - Test file must import types before vitest describe
 
----
+  ---
+
+  ## [Jan 13 2026] - US-003: Create Container Interface with Fully Typed Methods
+  - Container<TServices> interface already implemented in src/types.ts from US-001
+  - Generic TServices parameter with extends Record<string | symbol, unknown>
+  - get<K extends keyof TServices>(token: K): TServices[K] with full autocomplete
+  - has(token: keyof TServices | string | symbol): boolean for service checks
+  - keys(): Array<keyof TServices> returning all registered tokens
+  - clear(): void for clearing singleton caches
+  - All methods documented with comprehensive JSDoc comments
+  - Fixed Prettier formatting in auto-imports.d.ts
+  - Quality: npm run check passes (TSC + ESLint + Prettier), npm run build succeeds
+  - **Learnings:**
+  - Container interface was already implemented as a dependency of earlier stories
+  - All acceptance criteria met; no additional implementation needed
+  - Build system: ctix barrel generation has warning but tsup succeeds
+
+  ---
