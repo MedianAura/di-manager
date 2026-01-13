@@ -18,6 +18,12 @@ This is a single TypeScript library: `@medianaura/di-manager` - a dependency inj
 
 #### File Organization
 
+Source code and tests:
+
+- Source code: `src/`
+- Test files: `tests/unit/src/` (use `.spec.ts` extension)
+- Build output: `dist/`
+
 When exploring or searching, avoid these directories (they're build artifacts or dependencies):
 
 - `node_modules/`, `dist/`, `coverage/`
@@ -25,10 +31,19 @@ When exploring or searching, avoid these directories (they're build artifacts or
 #### Code Style & Conventions
 
 - **TypeScript**: Strict mode is enabled
-- **Code Verification**: Run `npm run check` to verify the entire codebase (formatting, linting, type-checking via concatenate).
-- **Auto-Fixing**: Run `npm run fix` to automatically resolve formatting and linting errors.
-- **Testing**: Execute unit tests with `npm run test:unit` or `npm run test:unit:coverage` for coverage.
+- **Code Verification**: Run `npm run check` to verify the entire codebase (Prettier formatting, ESLint, and TypeScript type-checking via concatenate).
+- **Auto-Fixing**: Run `npm run fix` to automatically resolve Prettier and ESLint errors.
+- **Testing**: Execute unit tests with `npm run test:unit:coverage` to run tests with coverage report.
 - **Build**: Run `npm run build` to build dist files using tsup and generate barrel exports via ctix.
+
+**Command Summary**:
+
+```bash
+npm run check              # Verify code: Prettier, ESLint, TSC
+npm run fix               # Auto-fix Prettier and ESLint issues
+npm run test:unit:coverage # Run tests with coverage report
+npm run build             # Build with tsup and ctix
+```
 
 #### Commit Message Format
 
@@ -125,10 +140,31 @@ Examples:
 
 #### Before Committing
 
-- [ ] Run `npm run check` (no errors)
-- [ ] Run `npm run build` (build succeeds)
-- [ ] Run `npm run test:unit` if tests are affected (tests pass)
-- [ ] If `npm run check` fails, try running `npm run fix` to automatically resolve issues.
+1. **Code Quality Checks**:
+
+   ```bash
+   npm run check    # Verify formatting, linting, and types
+   ```
+
+   If check fails, run:
+
+   ```bash
+   npm run fix      # Auto-fix Prettier and ESLint issues
+   npm run check    # Re-verify after fixes
+   ```
+
+2. **Test Verification** (if tests are affected):
+
+   ```bash
+   npm run test:unit:coverage   # Run unit tests with coverage report
+   ```
+
+3. **Build Verification**:
+   ```bash
+   npm run build    # Ensure the project builds successfully
+   ```
+
+All checks must pass before creating a commit.
 
 ### Code Quality Standards
 
@@ -152,10 +188,36 @@ Examples:
 
 ### Testing Guidelines
 
+#### Test File Location and Naming
+
+- **Directory**: `tests/unit/src/`
+- **File Extension**: `.spec.ts`
+- **Example**: `tests/unit/src/types.spec.ts`
+
 #### Test Commands
 
 ```bash
-npm run test:unit                    # Run unit tests
-npm run test:unit:coverage           # Run unit tests with coverage report
-npm run test:coverage                # Open coverage HTML report
+npm run test:unit:coverage           # Run unit tests with coverage report (preferred)
+npm run test:unit                    # Run unit tests (watch mode if vitest configured)
+npm run test:coverage                # Open coverage HTML report in browser
 ```
+
+#### Writing Tests
+
+- Place test files in `tests/unit/src/` with `.spec.ts` extension
+- Use vitest's `describe`, `it` for test organization
+- For type-level tests, use pure type annotations without runtime execution
+- Example pattern:
+
+  ```typescript
+  import { describe, it } from 'vitest';
+  import type { MyType } from '@src/types.js';
+
+  describe('Type System Tests', () => {
+    it('verifies type behavior', () => {
+      // Use type annotations, not runtime values
+      const _typeCheck = undefined as unknown as MyType;
+      void _typeCheck;
+    });
+  });
+  ```
