@@ -2,31 +2,33 @@
 
 This file provides guidance to AI assistants working with this codebase.
 
-**For project documentation**, see [README.md](./README.md) for complete details on:
-
-- Project structure and workspaces
-- Development commands and workflows
-- Architecture and tech stack
-- Build and deployment
+**For project documentation**, see [README.md](./README.md) for details on the concatenate tool and project overview.
 
 ## AI-Specific Guidelines
 
 ### Working with This Codebase
 
+#### Project Overview
+
+This is a single TypeScript library: `@medianaura/di-manager` - a dependency injection manager using tsyringe.
+
+- Source code: `src/`
+- Tests: `tests/`
+- Build output: `dist/`
+
 #### File Organization
 
 When exploring or searching, avoid these directories (they're build artifacts or dependencies):
 
-- `node_modules/`, `dist/`, `storybook-static/`, `playwright-report/`, `test-results/`, `.turbo/`
+- `node_modules/`, `dist/`, `.turbo/`, `coverage/`
 
 #### Code Style & Conventions
 
-- **TypeScript**: Strict mode is enabled across all workspaces
-- **Vue Components**: Use Composition API with `<script setup>` syntax
-- **Code Verification**: Run `npm run check` to verify the entire codebase. This command bundles several checks, including formatting, linting, and type-checking.
-- **Auto-Fixing**: To automatically fix formatting and linting errors, run `npm run fix`.
-- **Testing**: Execute Playwright tests with `npm run test`
-- **package.json Formatting**: When modifying any package.json file, ALWAYS run `npx sort-package-json <path-to-package.json>` to maintain alphabetical ordering of scripts and dependencies
+- **TypeScript**: Strict mode is enabled
+- **Code Verification**: Run `npm run check` to verify the entire codebase (formatting, linting, type-checking via concatenate).
+- **Auto-Fixing**: Run `npm run fix` to automatically resolve formatting and linting errors.
+- **Testing**: Execute unit tests with `npm run test:unit` or `npm run test:unit:coverage` for coverage.
+- **Build**: Run `npm run build` to build dist files using tsup and generate barrel exports via ctix.
 
 #### Commit Message Format
 
@@ -84,22 +86,13 @@ Examples:
 
 **ALWAYS group related changes together into logical commits**:
 
-- **Single feature/fix**: One commit with all related files
+- **Single feature/fix**: One commit with all related files (code + tests)
 - **Multiple unrelated changes**: Create separate commits for each logical change
-- **Documentation vs code**: Separate docs changes from functional changes
-- **Configuration vs features**: Separate config updates from feature implementations
-
-**Examples of proper grouping**:
-
-- Updating a component + its tests + its Storybook story = **one commit**
-- Updating README + adding new documentation files = **one commit**
-- Fixing a bug + updating tests for that bug = **one commit**
-- Updating package.json + fixing build configuration = **one commit**
-- Adding a new feature + updating documentation = **two separate commits**
+- **Documentation vs code**: Can combine docs with related functional changes, or separate if significant
 
 **Avoid splitting**:
 
-- Don't separate a feature from its tests
+- Don't separate code changes from their tests
 - Don't split configuration changes that are related
 - Don't create multiple commits for the same logical change
 
@@ -133,8 +126,8 @@ Examples:
 #### Before Committing
 
 - [ ] Run `npm run check` (no errors)
-- [ ] Run `npm run build` (all workspaces build successfully)
-- [ ] Run `npm run test` if applicable (tests pass)
+- [ ] Run `npm run build` (build succeeds)
+- [ ] Run `npm run test:unit` if tests are affected (tests pass)
 - [ ] If `npm run check` fails, try running `npm run fix` to automatically resolve issues.
 
 ### Code Quality Standards
@@ -162,5 +155,7 @@ Examples:
 #### Test Commands
 
 ```bash
-npm run test           # Run all tests
+npm run test:unit                    # Run unit tests
+npm run test:unit:coverage           # Run unit tests with coverage report
+npm run test:coverage                # Open coverage HTML report
 ```
