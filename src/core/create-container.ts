@@ -81,12 +81,26 @@ function populateRegistry<TConfig extends Record<ContainerToken, ServiceConfig<u
 }
 
 /**
+ * Resolves a config object with factory and optional singleton flag
+ */
+function resolveConfigObject<T>(service: ServiceConfig<unknown>, token: ContainerToken, cache: Map<ContainerToken, unknown>): T {
+  const config = service as { factory: () => unknown; singleton?: boolean };
+  const isSingleton = config.singleton !== false; // Default to true
+
+  if (isSingleton) {
+    return resolveFactory(config.factory, token, cache);
+  }
+
+  // Transient: always create a new instance
+  const factory = config.factory;
+  const instance = factory();
+  return instance as T;
+}
+
+/**
  * Resolves a direct value service
  */
-function resolveDirectValue<T>(service: ServiceConfig<unknown>, token: ContainerToken): T {
-  if (isConfigObject(service)) {
-    throw new Error(`Factory resolution not implemented yet for "${String(token)}"`);
-  }
+function resolveDirectValue<T>(service: ServiceConfig<unknown>, _token: ContainerToken): T {
   return service as T;
 }
 
@@ -109,8 +123,13 @@ function resolveFactory<T>(service: ServiceConfig<unknown>, token: ContainerToke
  * Resolves a service from the registry
  */
 function resolveService<T>(service: ServiceConfig<unknown>, token: ContainerToken, cache: Map<ContainerToken, unknown>): T {
-  if (typeof service !== 'function') {
-    return resolveDirectValue(service, token);
+  if (isConfigObject(service)) {
+    return resolveConfigObject(service, token, cache);
   }
-  return resolveFactory(service, token, cache);
+
+  if (typeof service === 'function') {
+    return resolveFactory(service, token, cache);
+  }
+
+  return resolveDirectValue(service, token);
 }

@@ -93,18 +93,40 @@
 - Singleton cache is separate from registry (clear() only affects cache)
 - Factory resolution works for simple arrow functions: `service: () => new Service()`
 - Files changed:
-  - src/core/create-container.ts (implemented factory resolution logic in get() method)
-  - tests/unit/src/create-container.spec.ts (added 8 unit tests for US-007)
+   - src/core/create-container.ts (implemented factory resolution logic in get() method)
+   - tests/unit/src/create-container.spec.ts (added 8 unit tests for US-007)
 - Quality checks passed:
-  - npm run check (Prettier, ESLint, TSC)
-  - npm run build (successful compilation)
-  - npm run test:unit (54 tests pass)
+   - npm run check (Prettier, ESLint, TSC)
+   - npm run build (successful compilation)
+   - npm run test:unit (54 tests pass)
 - **Learnings for future iterations:**
-  - Factory functions are detected with `typeof service === 'function'`
-  - Singleton cache uses Map.has() to check if already resolved
-  - Factory is invoked and result is cached: `const instance = factory(); singletonCache.set(token, instance);`
-  - Identity checks (`expect(first).toBe(second)`) verify singleton behavior
-  - Factory functions in tests must be declared in outer scope (ESLint unicorn/consistent-function-scoping)
-  - Config objects with explicit singleton flag will be handled in US-008
+   - Factory functions are detected with `typeof service === 'function'`
+   - Singleton cache uses Map.has() to check if already resolved
+   - Factory is invoked and result is cached: `const instance = factory(); singletonCache.set(token, instance);`
+   - Identity checks (`expect(first).toBe(second)`) verify singleton behavior
+   - Factory functions in tests must be declared in outer scope (ESLint unicorn/consistent-function-scoping)
+   - Config objects with explicit singleton flag will be handled in US-008
+
+---
+
+## 2026-01-13 3:24 PM - US-008
+- Implemented explicit lifecycle control with singleton flag
+- Config objects with `{ factory: () => T, singleton: true }` are cached
+- Config objects with `{ factory: () => T, singleton: false }` create new instance each call (transient)
+- Default singleton value is true when not specified
+- New `resolveConfigObject()` helper separates config resolution logic from direct values and factories
+- Updated `resolveService()` to check `isConfigObject()` first before type checking
+- Files changed:
+   - src/core/create-container.ts (added resolveConfigObject() logic, updated resolveService())
+   - tests/unit/src/create-container.spec.ts (added 6 unit tests for US-008)
+- Quality checks passed:
+   - npm run check (Prettier, ESLint, TSC)
+   - npm run build (successful compilation)
+   - npm run test:unit (60 tests pass, 59 pass US-008 tests)
+- **Learnings for future iterations:**
+   - Config object check must happen FIRST in resolveService() before typeof checks
+   - Transient services use `const isSingleton = config.singleton !== false` to default to true
+   - Direct logic: if singleton is true, use resolveFactory(); if false, execute factory once
+   - Identity checks verify singleton vs transient behavior
 
 ---

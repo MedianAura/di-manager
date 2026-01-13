@@ -370,6 +370,10 @@ const factory2 = () => ({ name: 'service2' });
 const factory3 = () => ({ name: 'service3' });
 const factoryForSymbol = () => ({ id: 42 });
 
+// Factory functions for US-008 testing (outer scope)
+const singletonFactory = () => ({ id: Math.random() });
+const transientFactory = () => ({ id: Math.random() });
+
 describe('createContainer - US-007: Factory Function Resolution with Singleton Caching', () => {
   it('detects if value is a function', () => {
     const config = {
@@ -524,5 +528,134 @@ describe('createContainer - US-007: Factory Function Resolution with Singleton C
 
     expect(first).toEqual({ id: 42 });
     expect(first).toBe(second);
+  });
+});
+
+describe('createContainer - US-008: Explicit Lifecycle Control', () => {
+  it('config objects with singleton: true are cached (default behavior)', () => {
+    const config = {
+      service: {
+        factory: singletonFactory,
+        singleton: true,
+      },
+    };
+
+    const container = createContainer(config);
+
+    const first = container.get('service');
+    const second = container.get('service');
+
+    // Should return the same cached instance
+    expect(first).toBe(second);
+  });
+
+  it('config objects with singleton: false create new instance each time', () => {
+    const config = {
+      service: {
+        factory: transientFactory,
+        singleton: false,
+      },
+    };
+
+    const container = createContainer(config);
+
+    const first = container.get('service');
+    const second = container.get('service');
+    const third = container.get('service');
+
+    // Each call should return a different instance (different id due to Math.random())
+    expect(first).not.toBe(second);
+    expect(second).not.toBe(third);
+    expect(first).not.toBe(third);
+  });
+
+  it('default singleton value is true if not specified', () => {
+    const config = {
+      service: {
+        factory: singletonFactory,
+      },
+    };
+
+    const container = createContainer(config);
+
+    const first = container.get('service');
+    const second = container.get('service');
+
+    // Should be cached by default
+    expect(first).toBe(second);
+  });
+
+  it('transient services are never cached', () => {
+    let callCount = 0;
+    const factory = () => {
+      callCount++;
+      return { count: callCount };
+    };
+
+    const config = {
+      service: {
+        factory,
+        singleton: false,
+      },
+    };
+
+    const container = createContainer(config);
+
+    container.get('service');
+    expect(callCount).toBe(1);
+
+    container.get('service');
+    expect(callCount).toBe(2);
+
+    container.get('service');
+    expect(callCount).toBe(3);
+  });
+
+  it('singleton config objects work with multiple services', () => {
+    const config = {
+      singleton1: {
+        factory: () => ({ id: 1 }),
+        singleton: true,
+      },
+      singleton2: {
+        factory: () => ({ id: 2 }),
+        singleton: true,
+      },
+      transient: {
+        factory: () => ({ id: 3 }),
+        singleton: false,
+      },
+    };
+
+    const container = createContainer(config);
+
+    const s1_1 = container.get('singleton1');
+    const s1_2 = container.get('singleton1');
+    const s2_1 = container.get('singleton2');
+    const s2_2 = container.get('singleton2');
+    const t1 = container.get('transient');
+    const t2 = container.get('transient');
+
+    expect(s1_1).toBe(s1_2);
+    expect(s2_1).toBe(s2_2);
+    expect(t1).not.toBe(t2);
+  });
+
+  it('works with symbol keys for transient services', () => {
+    const symKey = Symbol('transient');
+
+    const config = {
+      [symKey]: {
+        factory: () => ({ id: Math.random() }),
+        singleton: false,
+      },
+    };
+
+    const container = createContainer(config);
+
+    const first = container.get(symKey);
+    const second = container.get(symKey);
+
+    expect(first).not.toBe(second);
   });
 });
