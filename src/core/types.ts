@@ -2,7 +2,7 @@
  * A typed dependency injection container that manages service instances.
  * @template TServices - The type of services managed by this container
  */
-export interface Container<TServices extends Record<ContainerToken, unknown>> {
+export interface Container<TServices extends Record<ContainerToken, unknown>> extends ContainerReader {
   /**
    * Clear all singleton instances cached in the container.
    */
@@ -37,6 +37,11 @@ export interface Container<TServices extends Record<ContainerToken, unknown>> {
   register<K extends ContainerToken, T>(token: K, service: ServiceConfig<T>): void;
 }
 
+export interface ContainerReader {
+  get(token: ContainerToken): unknown;
+  has(token: ContainerToken): boolean;
+}
+
 export type ContainerToken = string | symbol;
 
 /**
@@ -63,9 +68,11 @@ export type InferServiceTypes<T> = {
  * - Configuration object: { factory: () => T, singleton?: boolean }
  */
 export type ServiceConfig<T> =
-  | (() => T)
   | {
-      factory: () => T;
+      factory: ServiceFactory<T>;
       singleton?: boolean;
     }
+  | ServiceFactory<T>
   | T;
+
+export type ServiceFactory<T> = (container: ContainerReader) => T;

@@ -3,6 +3,8 @@ dist
 coverage
 src/typings/auto-imports.d.ts
 package-lock.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
 LICENSE.md
 tsconfig.json
 tsconfig.*.json

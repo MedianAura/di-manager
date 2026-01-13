@@ -89,7 +89,7 @@
 ## 2026-01-13 2:47 PM - US-007
 - Implemented factory function detection in get() method
 - First call to factory function executes and caches the result
-- Subsequent calls return the cached singleton instance (same reference)
+- Subsequent calls return the cached instance (same reference)
 - Singleton cache is separate from registry (clear() only affects cache)
 - Factory resolution works for simple arrow functions: `service: () => new Service()`
 - Files changed:
@@ -206,3 +206,25 @@
   - Test isolation pattern: clear() in beforeEach/afterEach blocks for test cleanup
 
   ---
+## 2026-01-13 04:00 PM - US-012
+- Implemented dependency injection patterns for services.
+- Factory functions now receive a `ContainerReader` instance to resolve dependencies.
+- Updated `ServiceConfig` type to reflect the new factory signature.
+- Refactored `createContainerMethods` to use `const` and delayed `get` assignment to address `prefer-const` ESLint rule.
+- Ensured type safety by making `ContainerReader.get` return `unknown` and adding explicit type assertions in test cases.
+- Fixed `perfectionist/sort-union-types` and `perfectionist/sort-object-types` ESLint errors.
+- Files changed:
+  - src/core/types.ts
+  - src/core/create-container.ts
+  - src/typings/index.ts
+  - tests/unit/src/create-container.spec.ts
+- Quality checks passed:
+  - npm run check (Prettier, ESLint, TSC)
+  - npm run build (successful compilation)
+  - npm run test:unit (all 86 tests pass)
+- **Learnings for future iterations:**
+  - Handling circular dependencies in object initialization (e.g., container.get referencing itself) requires careful planning, often involving multi-step initialization or passing functions that resolve the dependency later.
+  - Strict linting rules like `prefer-const` can force more robust initialization patterns.
+  - Making `ContainerReader.get` return `unknown` requires explicit type assertions in consuming code (like tests) but avoids complex generic type propagation issues.
+  - `perfectionist` sorting rules can be very particular; `npm run fix` is invaluable.
+---

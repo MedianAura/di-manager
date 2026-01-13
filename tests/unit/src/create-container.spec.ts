@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createContainer } from '@src/core/create-container.js';
+import type { ContainerReader } from '@src/core/types.js';
 
 // Factory function for testing (outer scope)
 const factoryFunction = () => 'factory result';
@@ -1040,5 +1041,117 @@ describe('createContainer - US-011: Container.clear() Method', () => {
     // Service should still be registered
     expect(container.has('registered')).toBe(true);
     expect(container.get('registered')).toBe('value');
+  });
+});
+
+describe('createContainer - US-012: Dependency Injection Patterns', () => {
+  it('allows a service to get another service from its factory', () => {
+    const config = {
+      db: () => ({ query: (sql: string) => `Querying: ${sql}` }),
+      userRepo: (c: ContainerReader) => ({
+        findUser: () => (c.get('db') as { query: (sql: string) => string }).query('SELECT * FROM users'),
+      }),
+    } as const;
+
+    const container = createContainer(config);
+
+    const userRepo = container.get('userRepo') as { findUser: () => string };
+    const result = userRepo.findUser();
+
+    expect(result).toBe('Querying: SELECT * FROM users');
+  });
+
+  it('works with transient services that have dependencies', () => {
+    const config = {
+      config: { host: 'localhost' },
+      db: {
+        factory: (c: ContainerReader) => ({
+          host: (c.get('config') as { host: string }).host,
+          id: Math.random(),
+        }),
+        singleton: false, // Make db transient
+      },
+      service: {
+        factory: (c: ContainerReader) => ({
+          db: c.get('db') as { host: string; id: number },
+        }),
+        singleton: false, // Transient
+      },
+    } as const;
+
+    const container = createContainer(config);
+
+    const first = container.get('service') as { db: { host: string; id: number } };
+    const second = container.get('service') as { db: { host: string; id: number } };
+
+    expect(first).not.toBe(second); // Transient
+    expect(first.db).not.toBe(second.db); // Dependency is also transient-like because db is a factory
+    expect(first.db.host).toBe('localhost');
+  });
+
+  it('works for config objects with dependencies', () => {
+    const config = {
+      appConfig: { port: 8080 },
+      logger: {
+        factory: (c: ContainerReader) => ({
+          log: (message: string) => `Port ${(c.get('appConfig') as { port: number }).port}: ${message}`,
+        }),
+        singleton: true,
+      },
+    } as const;
+
+    const container = createContainer(config);
+    const logger = container.get('logger') as { log: (message: string) => string };
+    const result = logger.log('Server started');
+
+    expect(result).toBe('Port 8080: Server started');
+  });
+
+  it('resolves complex dependency graphs', () => {
+    const config = {
+      app: (c: ContainerReader) => ({
+        db: c.get('db') as { connect: () => string; logger: { level: string } },
+        run: () => (c.get('db') as { connect: () => string }).connect(),
+      }),
+      config: { logLevel: 'info' },
+      db: (c: ContainerReader) => ({
+        connect: () => `Connecting with log level ${(c.get('logger') as { level: string }).level}`,
+        logger: c.get('logger') as { level: string },
+      }),
+      logger: (c: ContainerReader) => ({
+        level: (c.get('config') as { logLevel: string }).logLevel,
+      }),
+    } as const;
+
+    const container = createContainer(config);
+    const app = container.get('app') as { db: { connect: () => string; logger: { level: string } }; run: () => string };
+    const result = app.run();
+
+    expect(result).toBe('Connecting with log level info');
+    expect(app.db.logger.level).toBe('info');
+  });
+
+  it('throws a Maximum call stack size exceeded error on circular dependencies', () => {
+    const config = {
+      serviceA: (c: ContainerReader) => c.get('serviceB'),
+      serviceB: (c: ContainerReader) => c.get('serviceA'),
+    } as const;
+
+    const container = createContainer(config);
+
+    expect(() => container.get('serviceA')).toThrow(RangeError);
+    expect(() => container.get('serviceA')).toThrow('Maximum call stack size exceeded');
+  });
+
+  it('allows registering a service with dependencies', () => {
+    const container = createContainer({
+      dependency: 'dependency value',
+      dependent: (c: ContainerReader) => ({
+        dep: c.get('dependency'),
+      }),
+    } as const);
+
+    const dependent = container.get('dependent') as { dep: string };
+    expect(dependent.dep).toBe('dependency value');
   });
 });
