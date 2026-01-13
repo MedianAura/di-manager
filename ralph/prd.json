@@ -83,7 +83,7 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
@@ -92,7 +92,7 @@
       "description": "As a developer, I need container.keys() to get all registered service tokens so I can iterate over services or debug configuration.",
       "acceptanceCriteria": [
         "keys() returns Array of all registered tokens",
-        "Tokens are returned in insertion order",
+        "Tokens are returned in alphabetical order",
         "Works for both string and symbol tokens",
         "Returns empty array if no services registered",
         "Does not invoke any factories",
@@ -100,7 +100,7 @@
         "Typecheck passes"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {

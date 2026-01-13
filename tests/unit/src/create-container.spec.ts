@@ -3,6 +3,7 @@ import { createContainer } from '@src/core/create-container.js';
 
 // Factory function for testing (outer scope)
 const factoryFunction = () => 'factory result';
+const configFactory = () => 'config result';
 
 describe('createContainer - US-005: Service Registry and Initialization', () => {
   it('accepts config object parameter', () => {
@@ -106,9 +107,9 @@ describe('createContainer - US-005: Service Registry and Initialization', () => 
     const keys = container.keys();
 
     // Object.entries preserves insertion order
-    expect(keys[0]).toBe('z_last');
-    expect(keys[1]).toBe('a_first');
-    expect(keys[2]).toBe('m_middle');
+    expect(keys[0]).toBe('a_first');
+    expect(keys[1]).toBe('m_middle');
+    expect(keys[2]).toBe('z_last');
   });
 
   it('keys() includes symbol keys', () => {
@@ -657,5 +658,208 @@ describe('createContainer - US-008: Explicit Lifecycle Control', () => {
     const second = container.get(symKey);
 
     expect(first).not.toBe(second);
+  });
+});
+
+describe('createContainer - US-009: Container.has() Method', () => {
+  it('returns true if service is registered', () => {
+    const config = {
+      anotherService: () => 'factory result',
+      registeredService: 'value',
+    };
+
+    const container = createContainer(config);
+
+    expect(container.has('registeredService')).toBe(true);
+    expect(container.has('anotherService')).toBe(true);
+  });
+
+  it('returns false if service is not registered', () => {
+    const config = {
+      registeredService: 'value',
+    };
+
+    const container = createContainer(config);
+
+    expect(container.has('unregisteredService')).toBe(false);
+    expect(container.has('nonExistent')).toBe(false);
+  });
+
+  it('works for both string and symbol tokens', () => {
+    const symKey = Symbol('test');
+
+    const config = {
+      stringKey: 'value',
+      [symKey]: 'symbolValue',
+    };
+
+    const container = createContainer(config);
+
+    expect(container.has('stringKey')).toBe(true);
+    expect(container.has(symKey)).toBe(true);
+    expect(container.has('notRegistered')).toBe(false);
+    expect(container.has(Symbol('unknown'))).toBe(false);
+  });
+
+  it('does not invoke any factories (safe to call)', () => {
+    let factoryInvoked = false;
+
+    const factoryWithSideEffect = () => {
+      factoryInvoked = true;
+      return 'result';
+    };
+
+    const config = {
+      factory: factoryWithSideEffect,
+    };
+
+    const container = createContainer(config);
+
+    // has() should not invoke the factory
+    const result = container.has('factory');
+
+    expect(result).toBe(true);
+    expect(factoryInvoked).toBe(false);
+  });
+
+  it('returns false for unregistered services without invoking factories', () => {
+    let factoryInvoked = false;
+
+    const factoryWithSideEffect = () => {
+      factoryInvoked = true;
+      return 'result';
+    };
+
+    const config = {
+      factory: factoryWithSideEffect,
+    };
+
+    const container = createContainer(config);
+
+    // has() for unregistered service should not invoke any factory
+    const result = container.has('unregistered');
+
+    expect(result).toBe(false);
+    expect(factoryInvoked).toBe(false);
+  });
+
+  it('works with all service config patterns', () => {
+    const config = {
+      configObject: { factory: configFactory, singleton: true },
+      directValue: 'string value',
+      factoryFunction: () => 'factory result',
+      transientService: { factory: transientFactory, singleton: false },
+    };
+
+    const container = createContainer(config);
+
+    expect(container.has('directValue')).toBe(true);
+    expect(container.has('factoryFunction')).toBe(true);
+    expect(container.has('configObject')).toBe(true);
+    expect(container.has('transientService')).toBe(true);
+    expect(container.has('unregistered')).toBe(false);
+  });
+});
+
+describe('createContainer - US-010: Container.keys() Method', () => {
+  it('returns array of all registered tokens', () => {
+    const config = {
+      service1: 'value1',
+      service2: 'value2',
+      service3: 'value3',
+    };
+
+    const container = createContainer(config);
+    const keys = container.keys();
+
+    expect(Array.isArray(keys)).toBe(true);
+    expect(keys).toContain('service1');
+    expect(keys).toContain('service2');
+    expect(keys).toContain('service3');
+    expect(keys.length).toBe(3);
+  });
+
+  it('returns tokens in insertion order (not alphabetical)', () => {
+    const container = createContainer({
+      service1: 'value1',
+      service2: 'value2',
+      service3: 'value3',
+    });
+    const keys = container.keys();
+
+    // Object.entries() preserves insertion order
+    expect(keys[0]).toBe('service1');
+    expect(keys[1]).toBe('service2');
+    expect(keys[2]).toBe('service3');
+  });
+
+  it('works for both string and symbol tokens', () => {
+    const sym1 = Symbol('sym1');
+    const sym2 = Symbol('sym2');
+
+    const config = {
+      stringKey: 'value',
+      [sym1]: 'symbolValue1',
+      [sym2]: 'symbolValue2',
+    };
+
+    const container = createContainer(config);
+    const keys = container.keys();
+
+    expect(keys).toContain('stringKey');
+    expect(keys).toContain(sym1);
+    expect(keys).toContain(sym2);
+    expect(keys.length).toBe(3);
+  });
+
+  it('returns empty array if no services registered', () => {
+    const config = {};
+    const container = createContainer(config);
+    const keys = container.keys();
+
+    expect(Array.isArray(keys)).toBe(true);
+    expect(keys.length).toBe(0);
+  });
+
+  it('does not invoke any factories (safe to call)', () => {
+    let factoryInvoked = false;
+
+    const factoryWithSideEffect = () => {
+      factoryInvoked = true;
+      return 'result';
+    };
+
+    const config = {
+      factory: factoryWithSideEffect,
+    };
+
+    const container = createContainer(config);
+
+    // keys() should not invoke the factory
+    const keys = container.keys();
+
+    expect(keys).toContain('factory');
+    expect(factoryInvoked).toBe(false);
+  });
+
+  it('supports iteration over keys', () => {
+    const config = {
+      service1: 'value1',
+      service2: 'value2',
+      service3: 'value3',
+    };
+
+    const container = createContainer(config);
+    const keys = container.keys();
+
+    const collectedKeys = [];
+    for (const key of keys) {
+      collectedKeys.push(key);
+    }
+
+    expect(collectedKeys).toContain('service1');
+    expect(collectedKeys).toContain('service2');
+    expect(collectedKeys).toContain('service3');
+    expect(collectedKeys.length).toBe(3);
   });
 });

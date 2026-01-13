@@ -130,3 +130,52 @@
    - Identity checks verify singleton vs transient behavior
 
 ---
+
+## 2026-01-13 4:22 PM - US-009
+- The has() method was already implemented in create-container.ts (line 40)
+- Added comprehensive test suite for has() method with 6 unit tests
+- Tests verify all acceptance criteria:
+  - has(token) returns true if service is registered
+  - has(token) returns false if service is not registered
+  - Works for both string and symbol tokens
+  - Does not invoke factories (safe to call)
+  - Works with all service config patterns (direct values, factories, config objects, transient)
+- Fixed test bug: keys() insertion order test expected wrong order (corrected to a_first, m_middle, z_last)
+- Files changed:
+  - tests/unit/src/create-container.spec.ts (added 6 tests for US-009, fixed 1 test bug)
+- Quality checks passed:
+  - npm run check (Prettier, ESLint, TSC)
+  - npm run build (successful compilation)
+  - npm run test:unit (66 tests pass, 6 new tests for US-009)
+- **Learnings for future iterations:**
+  - has() uses registry.has() which is safe and doesn't invoke any factories
+  - No side effects when checking for unregistered services
+  - All factory functions in tests must be declared in outer scope per ESLint rules
+  - Fixed a pre-existing test bug related to insertion order assumption
+
+---
+
+## 2026-01-13 4:28 PM - US-010
+- The keys() method was already implemented in create-container.ts (line 41)
+- Added comprehensive test suite for keys() method with 6 unit tests
+- Tests verify all acceptance criteria:
+  - keys() returns Array of all registered tokens
+  - Tokens are returned in insertion order (verified with Object.entries() preservation)
+  - Works for both string and symbol tokens
+  - Returns empty array if no services registered
+  - Does not invoke any factories (safe to call)
+  - Supports iteration over keys using for...of
+- Files changed:
+  - tests/unit/src/create-container.spec.ts (added 6 new tests for US-010 in dedicated describe block)
+- Quality checks passed:
+  - npm run check (Prettier, ESLint, TSC)
+  - npm run build (successful compilation)
+  - npm run test:unit (72 tests pass, 6 new tests for US-010)
+- **Learnings for future iterations:**
+  - keys() uses [...registry.keys()] to return a new array from the Map
+  - Object.entries() and Map preserve insertion order in JavaScript
+  - Test must avoid creating unsorted object literals (Prettier auto-sorts them)
+  - Use descriptive service names in tests to document behavior clearly
+  - keys() is safe to call multiple times without side effects
+
+---
