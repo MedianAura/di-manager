@@ -6,6 +6,14 @@ This file provides guidance to AI assistants working with this codebase.
 
 ## AI-Specific Guidelines
 
+### Maintaining These Instructions
+
+This `INSTRUCTIONS.md` file is a living document intended to guide all AI agents working on this codebase. Agents are encouraged to:
+
+1.  **Learn and Adapt:** Actively learn and adapt to project specifics (e.g., new commands, build processes, coding patterns, project structure nuances) by analyzing files like `package.json`, `tsconfig.json`, `README.md`, and existing code.
+2.  **Propose Updates:** If an agent discovers new, critical, or undocumented information relevant to project guidelines or workflows, it should propose an update to this `INSTRUCTIONS.md` file.
+3.  **User Confirmation:** Any significant updates to these instructions should be proposed to the user for confirmation to ensure accuracy and maintain user oversight.
+
 ### Working with This Codebase
 
 #### Project Overview
