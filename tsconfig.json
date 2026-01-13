@@ -1,32 +1,31 @@
 {
-  "display": "Base",
   "compilerOptions": {
-    "noEmit": true,
     "declaration": true,
-    "declarationDir": "dist/types",
-    "module": "ES2022",
-    "target": "ES2022",
-    "rootDir": "src",
-    "moduleResolution": "Node",
-    "moduleDetection": "force",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "moduleResolution": "nodenext",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "useUnknownInCatchVariables": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "module": "NodeNext",
+    "target": "ES2024",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
-    "lib": ["ES2022"],
-    "types": ["node"]
+    "lib": ["ES2024"],
+    "types": ["node"],
+    "paths": {
+      "@mocks/*": ["./tests/mocks/*"],
+      "@src/*": ["./src/*"]
+    }
   },
-  "include": ["./src/**/*"],
-  "tsc-alias": {
-    "resolveFullPaths": true,
-    "verbose": true
-  }
+  "include": ["./src/**/*", "./tests/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
