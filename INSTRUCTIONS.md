@@ -20,7 +20,7 @@ This is a single TypeScript library: `@medianaura/di-manager` - a dependency inj
 
 When exploring or searching, avoid these directories (they're build artifacts or dependencies):
 
-- `node_modules/`, `dist/`, `.turbo/`, `coverage/`
+- `node_modules/`, `dist/`, `coverage/`
 
 #### Code Style & Conventions
 
