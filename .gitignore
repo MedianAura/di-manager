@@ -6,6 +6,12 @@
 /tmp
 /node_modules
 oclif.manifest.json
-yarn.lock
-pnpm-lock.yaml
+junit.xml
+.eslintcache
 
+# stryker temp files
+/reports
+
+# ralph output file
+ralph/ralph_out.txt
+tmpclaude-*

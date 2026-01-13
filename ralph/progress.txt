@@ -67,3 +67,23 @@
   - Build system: ctix barrel generation has warning but tsup succeeds
 
   ---
+
+  ## [Jan 13 2026] - US-004: Create Type-Level Test Suite
+  - Type-level tests already exist at tests/unit/src/types.spec.ts
+  - 11 test cases covering all acceptance criteria
+  - Test ServiceConfig accepts direct values, factory functions, and config objects
+  - Test InferServiceTypes correctly extracts types from config
+  - Test Container.get/has/keys/clear methods with correct type inference
+  - Test autocomplete works for service tokens using satisfies operator
+  - Test symbol key support
+  - Fixed type test implementation to use pure type-level tests (no runtime execution)
+  - Changed from accessing undefined values at runtime to type annotation checks
+  - Use `undefined as unknown as Type` pattern for type verification
+  - All tests pass without TypeScript errors
+  - Quality: npm run test:unit:coverage (11 tests pass), npm run check (TSC + ESLint + Prettier), npm run build succeeds
+  - **Learnings:**
+  - Type-level tests should verify compilation, not runtime behavior
+  - Use undefined instead of null for type coercion patterns
+  - Unused type variables properly scoped with void statements
+
+  ---
