@@ -66,16 +66,16 @@ describe('Type System Tests', () => {
       }
 
       const _config = {
-        db: () => new DatabaseService(),
         cache: () => new CacheService(),
+        db: () => new DatabaseService(),
       } as const;
 
       type Services = InferServiceTypes<typeof _config>;
 
       // Verify type extraction for factories using type annotation only
       const _typeCheck = undefined as unknown as {
-        database: DatabaseService;
         cache: CacheService;
+        database: DatabaseService;
         services: Services;
       };
       void _typeCheck;
@@ -114,8 +114,8 @@ describe('Type System Tests', () => {
       }
 
       const _config = {
-        [databaseSymbol]: () => new Database(),
         [cacheSymbol]: { factory: () => new Map<string, unknown>() },
+        [databaseSymbol]: () => new Database(),
       } as const;
 
       type Services = InferServiceTypes<typeof _config>;
@@ -142,8 +142,8 @@ describe('Type System Tests', () => {
       }
 
       const _config = {
-        users: () => new UserService(),
         posts: () => new PostService(),
+        users: () => new UserService(),
       } as const satisfies Record<string, ServiceConfig<unknown>>;
 
       type Services = InferServiceTypes<typeof _config>;
@@ -173,9 +173,9 @@ describe('Type System Tests', () => {
 
       // Type-level test: verify Container.get() returns correct types
       const _typeCheck = undefined as unknown as {
-        container: Container<MyServices>;
         app: AppService;
         config: { port: number };
+        container: Container<MyServices>;
       };
       void _typeCheck;
     });
@@ -188,17 +188,17 @@ describe('Type System Tests', () => {
       // Type-level test: verify Container.has() accepts tokens and string/symbol
       const _typeCheck = undefined as unknown as {
         container: Container<MyServices>;
-        hasToken: boolean;
         hasString: boolean;
         hasSymbol: boolean;
+        hasToken: boolean;
       };
       void _typeCheck;
     });
 
     it('defines keys method for token enumeration', () => {
       type MyServices = {
-        db: unknown;
         cache: unknown;
+        db: unknown;
         logger: unknown;
       };
 

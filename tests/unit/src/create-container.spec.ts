@@ -36,8 +36,8 @@ describe('createContainer - US-005: Service Registry and Initialization', () => 
 
   it('supports string keys', () => {
     const config = {
-      stringKey: 'stringValue',
       anotherKey: () => 'anotherValue',
+      stringKey: 'stringValue',
     };
 
     const container = createContainer(config);
@@ -66,9 +66,9 @@ describe('createContainer - US-005: Service Registry and Initialization', () => 
     const configObject = { factory: () => 'config result', singleton: true };
 
     const config = {
+      configured: configObject,
       direct: directValue,
       factory: factoryFunction,
-      configured: configObject,
     };
 
     const container = createContainer(config);
@@ -97,9 +97,9 @@ describe('createContainer - US-005: Service Registry and Initialization', () => 
 
   it('keys() returns tokens in insertion order', () => {
     const config = {
-      z_last: 'value1',
       a_first: 'value2',
       m_middle: 'value3',
+      z_last: 'value1',
     };
 
     const container = createContainer(config);
@@ -304,8 +304,8 @@ describe('createContainer - US-006: Direct Value Resolution', () => {
 
   it('works with boolean values', () => {
     const config = {
-      isProduction: false,
       debugMode: true,
+      isProduction: false,
     };
 
     const container = createContainer(config);

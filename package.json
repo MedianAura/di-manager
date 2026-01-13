@@ -36,6 +36,7 @@
     "watch": "tsup --watch"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
     "@medianaura/automaton": "^0.2.0",
     "@medianaura/concatenate": "^0.3.2",
     "@medianaura/eslint-config": "^0.1.1",
@@ -47,6 +48,8 @@
     "ctix": "^2.7.2",
     "eslint": "^9.39.2",
     "eslint-formatter-pretty": "^7.0.0",
+    "eslint-plugin-code-complete": "^1.5.0",
+    "eslint-plugin-perfectionist": "^5.3.1",
     "knip": "^5.80.2",
     "npm-run-all2": "^8.0.4",
     "open-cli": "^8.0.0",

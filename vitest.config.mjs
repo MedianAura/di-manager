@@ -5,25 +5,25 @@ import { defineConfig } from 'vitest/config';
 // process.env.NODE_OPTIONS = '';
 
 export default defineConfig({
-  resolve: {
-    alias: kitchen({ recipe: 'vite' }),
-  },
-  test: {
-    include: ['./tests/unit/**/*.spec.ts'],
-    // setupFiles: './tests/unit/vitest.setup.ts',
-    globals: true,
-    cache: true,
-    coverage: {
-      provider: 'v8',
-      include: ['src/**/*.*'],
-      exclude: ['src/**/entry.ts', 'src/**/index.ts', 'src/**/*.d.ts'],
-      all: true,
-    },
-  },
   plugins: [
     AutoImport({
       dts: 'src/typings/auto-imports.d.ts',
       imports: ['vitest'],
     }),
   ],
+  resolve: {
+    alias: kitchen({ recipe: 'vite' }),
+  },
+  test: {
+    cache: true,
+    coverage: {
+      all: true,
+      exclude: ['src/**/entry.ts', 'src/**/index.ts', 'src/**/*.d.ts'],
+      include: ['src/**/*.*'],
+      provider: 'v8',
+    },
+    // setupFiles: './tests/unit/vitest.setup.ts',
+    globals: true,
+    include: ['./tests/unit/**/*.spec.ts'],
+  },
 });

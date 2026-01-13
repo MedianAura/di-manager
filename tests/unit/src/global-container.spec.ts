@@ -29,7 +29,7 @@ describe('Global Container', () => {
   });
 
   it('supports registering different service types', () => {
-    container.register('config', { port: 3000, host: 'localhost' });
+    container.register('config', { host: 'localhost', port: 3000 });
     container.register('db', () => 'database connection');
     container.register('cache', {
       factory: () => 'cache instance',
